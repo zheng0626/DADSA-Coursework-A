@@ -33,26 +33,25 @@ def permutation():
 
 def optimise_list(shop_list):
     permutation_shop_list = permutation()
-    lowest_sub = 0
+    lowest_sub = 10
     i = 0
     sub = 0
-    lowest_p = []
-    store = shop_list.item.store
+    lowest_p = permutation_shop_list[0]
 
-    for shop in shop_list.item.store:
-        if shop.count(p[0][0]) == 0 and shop.count(p[0][1]) == 0:
-            sub += 1
-    lowest_sub = sub
 
     for p in permutation_shop_list:
         sub = 0
-        for shop in shop_list:
-            if shop.count(p[0]) == 0 or shop.count(p[1]) == 0:
+        for shop in shop_list.item_list:
+            store_to_buy = shop.item.store
+            if store_to_buy.count(p[0]) == 0 and store_to_buy.count(p[1]) == 0:
                 sub += 1
         if sub < lowest_sub:
             lowest_sub = sub
             lowest_p = p
-
+        if sub ==  lowest_sub and p.count("C") > 0:
+            lowest_p = p
+    
+    print(lowest_p)
 
 
             
@@ -177,7 +176,11 @@ def getHouseHolds():
 
 item = setItem()
 ShoppingList = setShoppingList(item)
-print(ShoppingList[2].item_list[0].item.store)
+print(len(ShoppingList))
+print(ShoppingList[0])
+for i in range(len(ShoppingList)):
+    optimise_list(ShoppingList[i])
+
 
     
         
