@@ -69,6 +69,14 @@ def optimise_list(shop_list):
 
 
             
+# def substituition(shop_list,item_list,best_permutation):
+#     for shop in shop_list.item_list:
+#         store_to_buy = shop.item.store
+#         if store_to_buy.count(best_permutation) == 0:
+#             name_item = shop.item.name
+#             for item in item_list:
+                
+
 
 
 
@@ -91,6 +99,82 @@ class Item:
 
     def __str__(self):
         return "PRODUCT : " + self.name + ", price : " + self.price + ", store : " + str(self.store)
+
+class Node:
+    def __init__(self,init_data):
+        self.data = init_data
+        self.next = None
+
+    def get_data(self):
+        return self.data
+
+    def get_next(self):
+        return self.next
+    
+    def set_data(self,new_data):
+        self.data = new_data
+    
+    def set_next(self,new_next):
+        self.next = new_next
+
+class UnorderedList:
+    def __init__(self):
+        self.head = None
+
+    def is_empty(self):
+        return self.head == None
+
+    def add(self,item):
+        temp = Node(item)
+        temp.set_next(self.head)
+        self.head = temp
+        
+
+    def size(self):
+        current = self.head
+        count = 0
+        while current != None:
+            count = count + 1
+            current = current.get_next()
+        return count
+
+    def search(self,item):
+        current = self.head
+        found = False
+        while current != None and not found:
+            if current.get_data() == item:
+                found = True
+            else:
+                current = current.get_next()
+        return found
+
+    def getPreNode(self,item):
+        current = self.head
+        previous = None
+        found = False
+        while current != None and not found:
+            if current.get_data() == item:
+                found = True
+                return previous
+            else:
+                previous = current
+                current = current.get_next()
+        return False
+
+    def remove(self,item):
+        current = self.head
+        previous = None
+        found = False
+        while current != None and not found:
+            if current.get_data() == item:
+                found = True
+            else:
+                previous = current
+                current = current.get_next()
+        if previous == None:
+            self.head = current.get_next()
+        else:
+            previous.set_next(current.get_next())
 
 class ShoppingList:
     def __init__(self,house_num):
@@ -124,7 +208,7 @@ class ItemQuantity:
         return str(self.item) + ", Quantity :" + str(self.quantity) + "\n"
 
 
-def setItem():
+def setItem(item_linked):
     with open("fileA.csv",'r') as csvFile:
         reader = csv.reader(csvFile)
         num_store = getNumStore()
@@ -143,6 +227,7 @@ def setItem():
             if row[5] != "":
                 store_list.append("C")
             item.append(Item(name,price,store_list))
+            item_linked.add(Item(name,price,store_list))
             
     return item
 
@@ -197,8 +282,10 @@ def getHouseHolds():
         
 
         
+item_list = UnorderedList()
 
-item = setItem()
+item = setItem(item_list)
+print(item[0].name)
 ShoppingList = setShoppingList(item,2)
 print(len(ShoppingList))
 print(ShoppingList[0])
