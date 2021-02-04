@@ -37,7 +37,8 @@ def optimise_list(shop_list):
     i = 0
     sub = 0
     lowest_p = permutation_shop_list[0]
-
+    sub_list = []
+    lowest_sub_list = []
 
     for p in permutation_shop_list:
         sub = 0
@@ -45,13 +46,26 @@ def optimise_list(shop_list):
             store_to_buy = shop.item.store
             if store_to_buy.count(p[0]) == 0 and store_to_buy.count(p[1]) == 0:
                 sub += 1
+                sub_list.insert(len(sub_list),store_to_buy)
+                sub_name = shop.item.name
         if sub < lowest_sub:
             lowest_sub = sub
             lowest_p = p
+            lowest_sub_list = sub_list
+            if sub != 0:
+                lowest_sub_name = sub_name
         if sub ==  lowest_sub and p.count("C") > 0:
             lowest_p = p
+            lowest_sub_list = sub_list
+            if sub != 0:
+                lowest_sub_name = sub_name            
+        sub_list = []
     
     print(lowest_p)
+    print(lowest_sub)
+    if lowest_sub != 0:
+        print(lowest_sub_list)
+        print(lowest_sub_name)
 
 
             
@@ -132,7 +146,7 @@ def setItem():
             
     return item
 
-def setShoppingList(item_list):
+def setShoppingList(item_list,num = 1):
     with open("fileB.csv", 'r') as csvFile:
         reader = csv.reader(csvFile)
         shoppingList = []
@@ -141,9 +155,19 @@ def setShoppingList(item_list):
         csvFile.seek(0)
         next(reader)
         next(reader)
-        for i in range(1,num_households+1):
+        if num == 1:
+            first_col = 1
+            last_col = num_households + 1
+        elif num == 2:
+            first_col = 1+num_households
+            last_col = num_households*2+1
+        else:
+            print("ERROR WEEK")
+        j = 0
+        for i in range(first_col,last_col):
             num_row = 0
-            temp_shoppingList = ShoppingList(households[i-1])
+            temp_shoppingList = ShoppingList(households[j])
+            j += 1
             for row in reader:
                 if row[i] != '':
                     item_quantity = ItemQuantity(item_list[num_row],int(row[i]))
@@ -175,9 +199,10 @@ def getHouseHolds():
         
 
 item = setItem()
-ShoppingList = setShoppingList(item)
+ShoppingList = setShoppingList(item,2)
 print(len(ShoppingList))
 print(ShoppingList[0])
+#optimise_list(ShoppingList[1])
 for i in range(len(ShoppingList)):
     optimise_list(ShoppingList[i])
 
