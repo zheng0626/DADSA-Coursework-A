@@ -69,6 +69,7 @@ def optimise_list(shop_list,item_linked):
     if lowest_sub != 0:
         substituition(shop_list,item_linked,lowest_p)
     #print(lowest_sub)
+    print("LOWEST permutaion is : ",end='')
     print(lowest_p)
     return lowest_p
     # if lowest_sub != 0:
@@ -110,12 +111,36 @@ def substituition(shop_list,item_list,best_permutation):
                 print(next_item.data.name)
             else:
                 print("CANNOT BE FOUND SUBSTITUITION")
-    print(shop_list)
+    #print(shop_list)
 
 def delivery(best_delivery_day,item_list,shop_list):
-    print(shop_list[0].item_list)
-    
+    diff_day = len(best_delivery_day)-1
+    num = 0
+    for i in range(diff_day):
+        delivery_item = []
+        for households in shop_list:
+            for item_quantity in households.item_list:
+                item = item_list.search(item_quantity.item.name)
+                item_store = item.data.store
+                if item_store.count(best_delivery_day[i]) != 0 and item_store.count(best_delivery_day[i+1]) != 0:
+                    if item.data.store.count(best_delivery_day[i]):
+                        delivery_item.append(item)
+                        households.del_item(item)
+        print("DAY "+ str(i))
+        print("===========================")
+        #for i in delivery_item:
+            #print(i.data.name)
+    print(num)
+    print("???????????????")
+    print(shop_list[2])
 
+def get_quantity(shop_list):
+    num = 0
+    for shop in shop_list:
+        for item in shop.item_list:
+            num += item.quantity
+    print(num)
+    print("!!!!!!!!!!!!!")
 
 def delivery_date(best_permutation):
     print("BEST :",end = ' ')
@@ -158,6 +183,7 @@ def delivery_date(best_permutation):
                 print(extra_day)
     print("BEST DAY TO DELIVERY IS :", end = ' ')
     print(min(delivery_date,key = len))
+    delivery_date = min(delivery_date,key = len)
     return(delivery_date)                 
 
             
@@ -298,6 +324,11 @@ class ShoppingList:
 
     def get_item_list(self):
         return self.item_list
+    
+    def del_item(self,item_quantity):
+        for i,item in enumerate(self.item_list):
+            if item.item.name == item_quantity.data.name:
+                del self.item_list[i]
 
     def __str__(self):
         string = "HOUSE : " + self.house_num + "\n"
@@ -400,14 +431,14 @@ item_list = UnorderedList()
 item = setItem(item_list)
 #print("REVERSED")
 item_list.reverse()
-print(item_list.listprint())
+#print(item_list.listprint())
 ShoppingList = setShoppingList(item,2)
+get_quantity(ShoppingList)
 best_permutation = []
 for i in range(len(ShoppingList)):
     best_permutation.append(optimise_list(ShoppingList[i],item_list))
 best_delivery_day = delivery_date(best_permutation)
 delivery(best_delivery_day,item_list,ShoppingList)
-
 
     
         
