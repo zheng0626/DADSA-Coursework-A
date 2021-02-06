@@ -112,10 +112,57 @@ def substituition(shop_list,item_list,best_permutation):
                 print("CANNOT BE FOUND SUBSTITUITION")
     print(shop_list)
 
-def delivery(shop_list,best_permutation):
-    for p in permutation("ABC",True):
-        deliver = False
+def delivery(best_delivery_day,item_list,shop_list):
+    print(shop_list[0].item_list)
+    
 
+
+def delivery_date(best_permutation):
+    print("BEST :",end = ' ')
+    print(best_permutation)
+    delivery_date = []
+    num_households = len(best_permutation)
+    print(len(best_permutation))
+    for p in permutation("ABC",True):
+        temp_list = best_permutation
+        print(p)
+        num_done = 0
+        extra_day = p
+        for bp in temp_list:
+            complete = False
+            if bp.count(p[0]) != 0 and bp.count(p[1]) != 0:
+                complete = True
+                num_done += 1
+            elif bp.count(p[1]) != 0 and bp.count(p[2]) != 0:
+                complete = True
+                num_done += 1
+            else:
+                if bp.count(extra_day[-1]) != 0:
+                    if bp.count(extra_day[-2]) != 0:
+                        complete = True
+                        num_done += 1
+                    for day in p:
+                        if complete == True:
+                            break
+                        if day != extra_day[-1] and bp.count(day) != 0:
+                            complete = True
+                            num_done += 1
+                            extra_day += day
+                if complete == False:
+                    extra_day += bp
+                    num_done += 1
+                    complete = True
+            if num_done == num_households:
+                print("DONE BEST PERMUTATION IS :",end= ' ')
+                delivery_date.append(extra_day)
+                print(extra_day)
+    print("BEST DAY TO DELIVERY IS :", end = ' ')
+    print(min(delivery_date,key = len))
+    return(delivery_date)                 
+
+            
+            
+        
 
 
 
@@ -353,12 +400,13 @@ item_list = UnorderedList()
 item = setItem(item_list)
 #print("REVERSED")
 item_list.reverse()
-#print(item_list.listprint())
+print(item_list.listprint())
 ShoppingList = setShoppingList(item,2)
 best_permutation = []
 for i in range(len(ShoppingList)):
     best_permutation.append(optimise_list(ShoppingList[i],item_list))
-delivery(ShoppingList,item_list)
+best_delivery_day = delivery_date(best_permutation)
+delivery(best_delivery_day,item_list,ShoppingList)
 
 
     
