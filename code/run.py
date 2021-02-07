@@ -113,26 +113,65 @@ def substituition(shop_list,item_list,best_permutation):
                 print("CANNOT BE FOUND SUBSTITUITION")
     #print(shop_list)
 
-def delivery(best_delivery_day,item_list,shop_list):
-    diff_day = len(best_delivery_day)-1
+def delivery(best_delivery_day,shop_list,best_permutation):
+    diff_day = len(best_delivery_day)
+    print(diff_day)
+    bp = best_permutation
+    bdd = best_delivery_day
     num = 0
     for i in range(diff_day):
         delivery_item = []
-        for households in shop_list:
-            for item_quantity in households.item_list:
-                item = item_list.search(item_quantity.item.name)
-                item_store = item.data.store
-                if item_store.count(best_delivery_day[i]) != 0 and item_store.count(best_delivery_day[i+1]) != 0:
-                    if item.data.store.count(best_delivery_day[i]):
-                        delivery_item.append(item)
-                        households.del_item(item)
-        print("DAY "+ str(i))
-        print("===========================")
-        #for i in delivery_item:
-            #print(i.data.name)
+        delivery_num = []
+        for num_ls,households in enumerate(shop_list[:1]):
+            print("DAY "+ str(i))
+            print(households.house_num)
+            print(bp[num_ls])
+            print(households.next_delivery)
+            for item in households.item_list:
+                print(item)
+            next_day = bp[num_ls].count(bdd[i])
+            if(i == diff_day):
+                next_day = 1
+            if (bp[num_ls].count(bdd[i]) > 0 and next_day > 0) or households.next_delivery == True:
+                temp_shoppingList = households
+                for num,item_quantity in enumerate(households.item_list):
+                    print("ITEM TO BE CHECK :")
+                    print(item_quantity.item.name)
+                    print("DAY TO BUY")
+                    print(bdd[i])
+                    print("ITEM STORE")
+                    print(item_quantity.item.store)
+                    print("ITEM QUANTITY")
+                    print(item_quantity.item.store.count(bdd[i]))
+                    if item_quantity.item.store.count(bdd[i]) > 0:
+                        print("ITEM BOUGHT AND DELETED",end=' ')
+                        print(item_quantity.item.name)
+                        delivery_item.append(item_quantity.item.name)
+                        delivery_num.append(item_quantity.quantity)
+                        num += item_quantity.quantity
+                        households.del_item(item_quantity.item.name)
+                        if households.next_delivery == True:
+                            households.next_delivery = False
+                        else:
+                            households.next_delivery = True
+                    else:
+                        print(households.house_num)
+                        print("SHOP TO BUY DAY",end=' : ')
+                        print(bdd[i])
+                        print("BEST PERMUTATION FOR THIS HOUSEHOLD : ",end='')
+                        print(bp[num_ls])
+                        print("ITEM CANNOT BE FULLFILED AVAIABLE IN : ",end='')
+                        print(item_quantity.item.store)
+                        print("unable to send")
+                households = temp_shoppingList
+            print("After Buying stuff")
+            for item in households.item_list:
+                print(item)            
     print(num)
-    print("???????????????")
-    print(shop_list[2])
+    for shop in shop_list:
+        print(shop)
+            
+
 
 def get_quantity(shop_list):
     num = 0
@@ -318,6 +357,7 @@ class ShoppingList:
         self.house_num = house_num
         self.item_list = []
         self.optimise_item_list = []
+        self.next_delivery = False
 
     def add_item(self,item_quantity):
         self.item_list.append(item_quantity)
@@ -325,10 +365,14 @@ class ShoppingList:
     def get_item_list(self):
         return self.item_list
     
-    def del_item(self,item_quantity):
+    def del_item(self,item_name):
         for i,item in enumerate(self.item_list):
-            if item.item.name == item_quantity.data.name:
-                del self.item_list[i]
+            print(item.item.name)
+            if item.item.name == item_name:
+                print(item.item.name)
+                print(self.item_list[i].item.name)
+                self.item_list.remove(item)
+                break
 
     def __str__(self):
         string = "HOUSE : " + self.house_num + "\n"
@@ -438,7 +482,11 @@ best_permutation = []
 for i in range(len(ShoppingList)):
     best_permutation.append(optimise_list(ShoppingList[i],item_list))
 best_delivery_day = delivery_date(best_permutation)
-delivery(best_delivery_day,item_list,ShoppingList)
+delivery(best_delivery_day,ShoppingList,best_permutation)
+
+ShoppingList[0].del_item("White Bread loaf large")
+
+
 
     
         
