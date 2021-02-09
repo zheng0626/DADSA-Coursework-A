@@ -3,15 +3,15 @@ import csv
 DEBUG = False
 
 def getNumHouseholds():
-    with open("fileB.csv",'r') as csvFile:
+    with open("file2B.csv",'r') as csvFile:
         reader = csv.reader(csvFile)
         
-        num_households = len(set(list(reader)[0]))-1
+        num_households = len(set(list(reader)[0]))-2
 
     return num_households
 
 def getNumStore():
-    with open("fileA.csv",'r') as csvFile:
+    with open("file2A.csv",'r') as csvFile:
         reader = csv.reader(csvFile)
 
         num_store = len(list(reader)[0])-3
@@ -38,12 +38,13 @@ def permutation(shop,fullChar):
     return l
 
 def optimise_list(shop_list,item_linked):
-    permutation_shop_list = permutation("ABC",False)
+    permutation_shop_list = permutation("ABCD",False)
     lowest_sub = 10
     lowest_p = permutation_shop_list[0]
-
+    lowest_p_backup = {}
     for p in permutation_shop_list:
         sub = 0
+        lowest_p_backup[p] = 100
         current = shop_list.optimise_item_list.head
         while current != None:
             if current.get_store().count(p[0]) == 0 and current.get_store().count(p[1]) == 0:
@@ -52,55 +53,16 @@ def optimise_list(shop_list,item_linked):
         if sub < lowest_sub:
             lowest_sub = sub
             lowest_p = p
-        if sub == lowest_sub and p.count("C") > 0:
-            lowest_p = p
+            lowest_p_backup[p] = sub
+        elif sub == lowest_sub:
+            lowest_p_backup[p] = sub
+        else:
+            lowest_p_backup[p] = sub
     if lowest_sub != 0:
         substituition(shop_list,item_linked,lowest_p)
-    print("===========================")
-    print("lowest permutation")
-    print(shop_list.house_num)
+    print(lowest_p_backup)
     print(lowest_p)
-    print("===========================")
     return lowest_p
-def optimise_list1(shop_list,item_linked):
-    permutation_shop_list = permutation("ABC",False)
-    lowest_sub = 10
-    i = 0
-    sub = 0
-    lowest_p = permutation_shop_list[0]
-    sub_list = []
-    lowest_sub_list = []
-
-    for p in permutation_shop_list:
-        sub = 0
-        for shop in shop_list.item_list:
-            store_to_buy = shop.item.store
-            if store_to_buy.count(p[0]) == 0 and store_to_buy.count(p[1]) == 0:
-                sub += 1
-                sub_list.insert(len(sub_list),store_to_buy)
-                sub_name = shop.item.name
-        if sub < lowest_sub:
-            lowest_sub = sub
-            lowest_p = p
-            lowest_sub_list = sub_list
-            if sub != 0:
-                lowest_sub_name = sub_name
-        if sub ==  lowest_sub and p.count("C") > 0:
-            lowest_p = p
-            lowest_sub_list = sub_list
-            if sub != 0:
-                lowest_sub_name = sub_name            
-        sub_list = []
-    if lowest_sub != 0:
-        substituition(shop_list,item_linked,lowest_p)
-    print(lowest_sub)
-    print("LOWEST permutaion is : ",end='')
-    print(lowest_p)
-    # if lowest_sub != 0:
-    #     print(lowest_sub_list)
-    #     print(lowest_sub_name)
-    return lowest_p
-
 
 def substituition(shop_list,item_list,best_permutation):
     p = best_permutation
@@ -112,72 +74,58 @@ def substituition(shop_list,item_list,best_permutation):
             item = item_list.search(current.data.item.name)
             prev_item = item_list.getPreNode(item.data.name)
             next_item = item.get_next()
-            if(False):
+            if(True):
                 print("ITEM CANNOT BE FULL FILLED IS :", end= ' ')
                 print(item.data.name)
                 print("FIRST CANDIDATE :",end= ' ')
-                print(prev_item.data.name)
+                if prev_item == None:
+                    prev_item = next_item.get_next()
+                    print(prev_item.data.name)
                 print("NEXT CANDIDATE :", end= ' ')
-                print(next_item.data.name)
+                if(next_item != None):
+                    print(next_item.data.name)
             prev_w = 0
             next_w = 0
-            for word in list(item.data.name):
-                if prev_item.get_name().count(word) > next_item.get_name().count(word):
-                    prev_w += 1
-                elif prev_item.get_name().count(word) < next_item.get_name().count(word):
-                    next_w += 1
-            if prev_w > next_w:
+            if next_item != None:
+                if (next_item.data.store.count(p[0]) == 0 and next_item.data.store.count(p[1]) == 0) and (prev_item.data.store.count(p[0]) == 0 and prev_item.data.store.count(p[1]) == 0):
+                    print("GG.COM cannot find any substituition")
+                    print(p)
+                    print(prev_item.data.name)
+                    print(next_item.data.name)
+                    print("==================")
+                if(next_item.data.store.count(p[0]) == 0 and next_item.data.store.count(p[1]) == 0):
+                    current.data.setItem(prev_item.data)
+                elif((prev_item.data.store.count(p[0]) == 0 and prev_item.data.store.count(p[1]) == 0)):
+                    current.data.setItem(next_item.data)
+                else:
+                    for word in list(item.data.name):
+                        if prev_item.get_name().count(word) > next_item.get_name().count(word):
+                            prev_w += 1
+                        elif prev_item.get_name().count(word) < next_item.get_name().count(word):
+                            next_w += 1
+                    if prev_w > next_w:
+                        current.data.setItem(prev_item.data)
+                        print("BEst MATCH : " +prev_item.get_name())
+                    elif prev_w < next_w:             
+                        current.data.setItem(next_item.data)
+                        print("BEst MATCH : " +prev_item.get_name())
+                    else:
+                        print("CANNOT FOUND ANY SUBSTITUITION")
+            else:
                 current.data.setItem(prev_item.data)
-            elif prev_w < next_w:             
-                current.data.setItem(next_item.data)
-            else:
-                print("CANNOT FOUND ANY SUBSTITUITION")
         current = current.get_next()
+    
 
-
-def substituition1(shop_list,item_list,best_permutation):
-    p = best_permutation
-    for shop in shop_list.item_list:
-        store_to_buy = shop.item.store
-        if store_to_buy.count(p[0]) == 0 and store_to_buy.count(p[1]) == 0:
-            item = item_list.search(shop.item.name)
-            prev_item = item_list.getPreNode(item.data.name)
-            next_item = item.get_next()
-            if(DEBUG == True):
-                print("ITEM CANNOT BE FULL FILLED IS :", end= ' ')
-                print(item.data.name)
-                print("FIRST CANDIDATE :",end= ' ')
-                print(prev_item.data.name)
-                print("NEXT CANDIDATE :", end= ' ')
-                print(next_item.data.name)
-            prev_w = 0
-            next_w = 0
-            for word in list(item.data.name):
-                if prev_item.data.name.count(word) > next_item.data.name.count(word):
-                    prev_w += 1
-                elif prev_item.data.name.count(item.data.name) < next_item.data.name.count(item.data.name):
-                    next_w += 1
-            if prev_w > next_w:
-                shop.setItem(prev_item.data)
-                print("THE NEAREST CANDIDATE IS :",end = ' ')
-                print(prev_item.data.name)
-            elif next_w > prev_w:
-                shop.setItem(next_item.data)
-                shop.getItem().name += "(sub)"                
-                print("THE NEAREST CANDIDATE IS :",end = ' ')
-                print(next_item.data.name)
-            else:
-                print("CANNOT BE FOUND SUBSTITUITION")
-    #print(shop_list)
-
-def delivery(best_delivery_day,shop_list,best_permutation):
+def delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict):
     num_day_buy = len(best_delivery_day)
     bdd = best_delivery_day
     bp = best_permutation
     num = 0
+    shopping_schedule = []
+    households_delivery_day = []
     for i in range(num_day_buy):
-        if i == 1:
-            print()
+        temp_item_dict = item_dict.copy()
+        temp_hdd = []
         for num_household,household in enumerate(shop_list):
             current_day = bp[num_household].count(bdd[i])
             if i == num_day_buy-1:
@@ -193,79 +141,55 @@ def delivery(best_delivery_day,shop_list,best_permutation):
                 while(current != None):
                     next_current = current.get_next()
                     if current.get_store().count(bdd[i]) > 0:
-                        num += current.data.quantity
-                        household.optimise_item_list.remove(current.data.item.name)
-                    current = next_current
-    print(num)
-def delivery1(best_delivery_day,shop_list,best_permutation):
-    diff_day = len(best_delivery_day)
-    print(diff_day)
-    bp = best_permutation
-    bdd = best_delivery_day
-    num = 0
-    for i in range(diff_day):
-        delivery_item = []
-        delivery_num = []
-        for num_ls,households in enumerate(shop_list[:1]):
-            print("DAY "+ str(i))
-            print(households.house_num)
-            print(bp[num_ls])
-            print(households.next_delivery)
-            for item in households.item_list:
-                print(item)
-            next_day = bp[num_ls].count(bdd[i])
-            if(i == diff_day):
-                next_day = 1
-            if (bp[num_ls].count(bdd[i]) > 0 and next_day > 0) or households.next_delivery == True:
-                temp_shoppingList = households
-                for num,item_quantity in enumerate(households.item_list):
-                    print("ITEM TO BE CHECK :")
-                    print(item_quantity.item.name)
-                    print("DAY TO BUY")
-                    print(bdd[i])
-                    print("ITEM STORE")
-                    print(item_quantity.item.store)
-                    print("ITEM QUANTITY")
-                    print(item_quantity.item.store.count(bdd[i]))
-                    if item_quantity.item.store.count(bdd[i]) > 0:
-                        print("ITEM BOUGHT AND DELETED",end=' ')
-                        print(item_quantity.item.name)
-                        delivery_item.append(item_quantity.item.name)
-                        delivery_num.append(item_quantity.quantity)
-                        num += item_quantity.quantity
-                        households.del_item(item_quantity.item.name)
-                        if households.next_delivery == True:
-                            households.next_delivery = False
+                        if i == 0 and current.get_store().count(bdd[i+1]) > 0:
+                            pass
                         else:
-                            households.next_delivery = True
-                    else:
-                        print(households.house_num)
-                        print("SHOP TO BUY DAY",end=' : ')
-                        print(bdd[i])
-                        print("BEST PERMUTATION FOR THIS HOUSEHOLD : ",end='')
-                        print(bp[num_ls])
-                        print("ITEM CANNOT BE FULLFILED AVAIABLE IN : ",end='')
-                        print(item_quantity.item.store)
-                        print("unable to send")
-                households = temp_shoppingList
-            print("After Buying stuff")
-            for item in households.item_list:
-                print(item)            
-    print(num)
-    for shop in shop_list:
-        print(shop)
-            
-
+                            temp_item_dict[current.data.item.name] += current.data.quantity
+                            num += current.data.quantity
+                            household.optimise_item_list.remove(current.data.item.name)
+                    current = next_current
+                if household.optimise_item_list.head == None:
+                    temp_hdd.append(household.house_num)
+        shopping_schedule.insert(len(shopping_schedule),temp_item_dict)
+        households_delivery_day.insert(len(households_delivery_day),temp_hdd)
+    print("Shopping Schedule")     
+    print("-----------------------------")
+    for i,shop_schedule in enumerate(shopping_schedule):
+        input("Press Enter to continue...")
+        print("DAY "+ str(i+1))
+        for key,value in shop_schedule.items():
+            if value != 0:
+                print(key,end=' , ')
+                print("Quantity : "+str(value))
+        print()
+    print("Delivery Schedule")
+    print("-----------------------------")
+    for i,deliver_schedule in enumerate(households_delivery_day):
+        if i == 0:
+            pass
+        else:
+            input("Press Enter to continue...")
+            print("DAY "+str(i+1))
+            for household in deliver_schedule:
+                print(household,end=' ')
+            print()
+            print()
+        
 
 def delivery_date(best_permutation):
-    print("BEST :",end = ' ')
-    print(best_permutation)
     delivery_date = []
     num_households = len(best_permutation)
-    print(len(best_permutation))
-    for p in permutation("ABC",True):
+    b1 = permutation("ABCD",False)
+    b2 = permutation("ABCD",False)
+    best = []
+    for i in range(len(b1)):
+        for j in range(len(b2)):
+            best.append(str(b1[i])+str(b2[j]))
+    permu = permutation("ABCD",True)
+    for i in range(len(permu)):
+        best.append(permu[i])
+    for p in best:
         temp_list = best_permutation
-        print(p)
         num_done = 0
         extra_day = p
         for bp in temp_list:
@@ -293,12 +217,10 @@ def delivery_date(best_permutation):
                     num_done += 1
                     complete = True
             if num_done == num_households:
-                print("DONE BEST PERMUTATION IS :",end= ' ')
                 delivery_date.append(extra_day)
-                print(extra_day)
-    print("BEST DAY TO DELIVERY IS :", end = ' ')
-    print(min(delivery_date,key = len))
     delivery_date = min(delivery_date,key = len)
+    print("DELIVERY DATE")
+    print(delivery_date)
     return(delivery_date)                 
 
             
@@ -479,8 +401,9 @@ class ItemQuantity:
         return str(self.item) + ", Quantity :" + str(self.quantity) + "\n"
 
 
-def setItem(item_linked):
-    with open("fileA.csv",'r') as csvFile:
+def setItem(item_linked,item_dict,item_price_dict):
+    item_dict = {}
+    with open("file2A.csv",'r') as csvFile:
         reader = csv.reader(csvFile)
         num_store = getNumStore()
         next(reader)
@@ -488,15 +411,17 @@ def setItem(item_linked):
         i = 0
         for row in reader:
             i += 1
+            store_list = []
             name = row[1]
             price = row[2]
-            store_list = []
             if row[3] != "":
                 store_list.append("A")
             if row[4] != "":
                 store_list.append("B")
             if row[5] != "":
                 store_list.append("C")
+            if row[6] != "":
+                store_list.append("D")
             item.append(Item(name,price,store_list))
             item_linked.add(Item(name,price,store_list))
             
@@ -504,20 +429,22 @@ def setItem(item_linked):
     return item
 
 def setShoppingList(item_list,num = 1):
-    with open("fileB.csv", 'r') as csvFile:
+    with open("file2B.csv", 'r') as csvFile:
         reader = csv.reader(csvFile)
         shoppingList = []
         num_households = getNumHouseholds()
-        households = (list(reader)[0])[1:num_households+1]
+        print(num_households)
+        households = (list(reader)[0])[2:num_households+2]
+        print(households)
         csvFile.seek(0)
         next(reader)
         next(reader)
         if num == 1:
-            first_col = 1
-            last_col = num_households + 1
+            first_col = 2
+            last_col = num_households + 2
         elif num == 2:
-            first_col = 1+num_households
-            last_col = num_households*2+1
+            first_col = 2+num_households
+            last_col = num_households*2+2
         else:
             print("ERROR WEEK")
         j = 0
@@ -528,7 +455,6 @@ def setShoppingList(item_list,num = 1):
             for row in reader:
                 if row[i] != '':
                     item_quantity = ItemQuantity(item_list[num_row],int(row[i]))
-                    temp_shoppingList.add_item(item_quantity)
                     temp_shoppingList.optimise_item_list.add(item_quantity)
                 num_row += 1
             temp_shoppingList.optimise_item_list.reverse()
@@ -538,46 +464,9 @@ def setShoppingList(item_list,num = 1):
             next(reader)
         
         return shoppingList
-            
-
-def setShoppingList2():
-    with open("fileB.csv", 'r') as csvFile:
-        reader = csv.reader(csvFile)
-        shoppingList = []
-        num_households = getNumHouseholds()
-        households = (list(reader)[0])[1:num_households+1]
-        csvFile.seek(0)
-        next(reader)
-        next(reader)
-        if num == 1:
-            first_col = 1
-            last_col = num_households + 1
-        elif num == 2:
-            first_col = 1+num_households
-            last_col = num_households*2+1
-        else:
-            print("ERROR WEEK")
-        j = 0
-        for i in range(first_col,last_col):
-            num_row = 0
-            temp_shoppingList = ShoppingList(households[j])
-            j += 1
-            for row in reader:
-                if row[i] != '':
-                    item_quantity = ItemQuantity(item_list[num_row],int(row[i]))
-                    temp_shoppingList.add_item(item_quantity)
-                    temp_shoppingList.optimise_item_list.add_item(item_quantity)
-                num_row += 1
-            temp_shoppingList.optimise_item_list.reverse()
-            shoppingList.append(temp_shoppingList)
-            csvFile.seek(0)
-            next(reader)
-            next(reader)
-        
-        return shoppingList     
 
 def getHouseHolds():
-    with open("fileB.csv", 'r') as csvFile:
+    with open("file2B.csv", 'r') as csvFile:
         reader = csv.reader(csvFile)
         num_households = getNumHouseholds()
         households = (list(reader)[0])[1:num_households+1]
@@ -591,18 +480,22 @@ def getHouseHolds():
 
         
 item_list = UnorderedList()
-item = setItem(item_list)
-#print("REVERSED")
+item_dict = {}
+item_price_dict = {}
+item = setItem(item_list,item_dict,item_price_dict)
+for i in item:
+    item_dict[i.name] = 0
+    item_price_dict[i.name] = i.price
 item_list.reverse()
-#print(item_list.listprint())
-ShoppingList = setShoppingList(item,1)
+ShoppingList = setShoppingList(item,2) 
 best_permutation = []
-#optimise_list(ShoppingList[2],item_list)
 for i in range(len(ShoppingList)):
     best_permutation.append(optimise_list(ShoppingList[i],item_list))
-best_delivery_day = delivery_date(best_permutation)  
-delivery(best_delivery_day,ShoppingList,best_permutation)
-
+best_delivery_day = delivery_date(best_permutation)
+delivery(best_delivery_day,ShoppingList,best_permutation,item_dict,item_price_dict)
+print(best_delivery_day)
+for i in range(len(ShoppingList)):
+    print(best_permutation[i])
 for i in range(len(ShoppingList)):
     print(ShoppingList[i].house_num)
     ShoppingList[i].optimise_item_list.listprint()
