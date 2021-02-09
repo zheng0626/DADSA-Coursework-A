@@ -446,19 +446,16 @@ for i in item:
     item_dict[i.name] = 0
     item_price_dict[i.name] = i.price
 item_list.reverse()
+ShoppingList = setShoppingList(item,2)
+best_permutation = []
+for i in range(len(ShoppingList)):
+    best_permutation.append(optimise_list(ShoppingList[i],item_list))
+best_delivery_day = delivery_date(best_permutation)  
+delivery(best_delivery_day,ShoppingList,best_permutation,item_dict,item_price_dict)
 
-for week in range(1,3):
-    print("WEEK "+str(week))
-    shop_list = setShoppingList(item,week)
-    best_permutation = []
-    for i in range(len(shop_list)):
-        best_permutation.append(optimise_list(shop_list[i],item_list))
-    best_delivery_day = delivery_date(best_permutation)  
-    delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict)
-
-    for i in range(len(shop_list)):
-        print(shop_list[i].house_num)
-        shop_list[i].optimise_item_list.listprint()
+for i in range(len(ShoppingList)):
+    print(ShoppingList[i].house_num)
+    ShoppingList[i].optimise_item_list.listprint()
 
 
 

@@ -544,9 +544,9 @@ item_list.reverse()
 #     print(shop_list[i].house_num)
 #     shop_list[i].optimise_item_list.listprint()
 
-for i in range(1,3):
-    print("WEEK + " + str(i+3))
-    shop_list = setShoppingList(item,2) 
+for week in range(1,3):
+    print("WEEK + " + str(week+3))
+    shop_list = setShoppingList(item,week) 
     best_permutation = []
     best_permutation = optimise_list(shop_list,item_list)
     best_delivery_day = delivery_date(best_permutation)
