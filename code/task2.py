@@ -39,30 +39,48 @@ def permutation(shop,fullChar):
 
 def optimise_list(shop_list,item_linked):
     permutation_shop_list = permutation("ABCD",False)
-    lowest_sub = 10
-    lowest_p = permutation_shop_list[0]
-    lowest_p_backup = {}
-    for p in permutation_shop_list:
-        sub = 0
-        lowest_p_backup[p] = 100
-        current = shop_list.optimise_item_list.head
-        while current != None:
-            if current.get_store().count(p[0]) == 0 and current.get_store().count(p[1]) == 0:
-                sub += 1
-            current = current.get_next()
-        if sub < lowest_sub:
-            lowest_sub = sub
-            lowest_p = p
-            lowest_p_backup[p] = sub
-        elif sub == lowest_sub:
-            lowest_p_backup[p] = sub
-        else:
-            lowest_p_backup[p] = sub
-    if lowest_sub != 0:
-        substituition(shop_list,item_linked,lowest_p)
-    print(lowest_p_backup)
-    print(lowest_p)
-    return lowest_p
+    permu_list = []
+    for household in shop_list:
+        lowest_sub = 10
+        lowest_p = []
+        permu_dict = {}
+        for p in permutation_shop_list:
+            sub = 0
+            permu_dict[p] = 100
+            current = household.optimise_item_list.head
+            while current != None:
+                if current.get_store().count(p[0]) == 0 and current.get_store().count(p[1]) == 0:
+                    sub += 1
+                current = current.get_next()
+            if sub < lowest_sub:
+                lowest_sub = sub
+                lowest_p = p
+                permu_dict[p] = sub
+            elif sub == lowest_sub:
+                permu_dict[p] = sub
+            else:
+                permu_dict[p] = sub
+        permu_list.append(permu_dict)
+    lowest_permu_list = []
+    delivery_day = []
+    for p in permu_list:
+        min_permu = min(p.keys(),key=(lambda k : p[k]))
+        lowest_permu_list.append(str(min_permu))
+    delivery_day = delivery_date(lowest_permu_list)
+    min_per_str = min(lowest_permu_list,key=lowest_permu_list.count)
+    min_permu_num = 0
+    if len(delivery_day) > 4:
+        for i,p in enumerate(permu_list):
+            min_permu = min(p.keys(),key=(lambda k : p[k]))
+            if str(min_permu) == min_per_str:
+                min_permu_num = p[min_permu]+1
+                for permu in permutation_shop_list:
+                    if p[permu] == min_permu_num:
+                        lowest_permu_list[i] = permu
+                        break
+    for i,household in enumerate(shop_list):
+        substituition(household,item_linked,lowest_permu_list[i])
+    return lowest_permu_list
 
 def substituition(shop_list,item_list,best_permutation):
     p = best_permutation
@@ -179,6 +197,7 @@ def delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_d
 def delivery_date(best_permutation):
     delivery_date = []
     num_households = len(best_permutation)
+    #get all kind of permutation
     b1 = permutation("ABCD",False)
     b2 = permutation("ABCD",False)
     best = []
@@ -188,23 +207,31 @@ def delivery_date(best_permutation):
     permu = permutation("ABCD",True)
     for i in range(len(permu)):
         best.append(permu[i])
+
     for p in best:
         temp_list = best_permutation
         num_done = 0
         extra_day = p
         for bp in temp_list:
+            #to record if the combination is fail or not
             complete = False
+            # to check the combination working or not, I didnt use for loop to make it look easier
             if bp.count(p[0]) != 0 and bp.count(p[1]) != 0:
                 complete = True
                 num_done += 1
             elif bp.count(p[1]) != 0 and bp.count(p[2]) != 0:
                 complete = True
                 num_done += 1
+            elif bp.count(p[2]) != 0 and bp.count(p[3]) != 0:
+                complete = True
+                num_done += 1
             else:
+                #make sure it included last line for checking the combination
                 if bp.count(extra_day[-1]) != 0:
                     if bp.count(extra_day[-2]) != 0:
                         complete = True
                         num_done += 1
+                    
                     for day in p:
                         if complete == True:
                             break
@@ -212,10 +239,12 @@ def delivery_date(best_permutation):
                             complete = True
                             num_done += 1
                             extra_day += day
+                #if failed then just add the day behind delivery day
                 if complete == False:
                     extra_day += bp
                     num_done += 1
                     complete = True
+            #if num_done == num_household then the delivery day can complete all the delivery in constraints
             if num_done == num_households:
                 delivery_date.append(extra_day)
     delivery_date = min(delivery_date,key = len)
@@ -428,7 +457,7 @@ def setItem(item_linked,item_dict,item_price_dict):
             
     return item
 
-def setShoppingList(item_list,num = 1):
+def setShoppingList(item_list,num):
     with open("file2B.csv", 'r') as csvFile:
         reader = csv.reader(csvFile)
         shoppingList = []
@@ -450,6 +479,7 @@ def setShoppingList(item_list,num = 1):
         j = 0
         for i in range(first_col,last_col):
             num_row = 0
+            
             temp_shoppingList = ShoppingList(households[j])
             j += 1
             for row in reader:
@@ -462,7 +492,8 @@ def setShoppingList(item_list,num = 1):
             csvFile.seek(0)
             next(reader)
             next(reader)
-        
+
+        del temp_shoppingList
         return shoppingList
 
 def getHouseHolds():
@@ -487,18 +518,45 @@ for i in item:
     item_dict[i.name] = 0
     item_price_dict[i.name] = i.price
 item_list.reverse()
-ShoppingList = setShoppingList(item,2) 
-best_permutation = []
-for i in range(len(ShoppingList)):
-    best_permutation.append(optimise_list(ShoppingList[i],item_list))
-best_delivery_day = delivery_date(best_permutation)
-delivery(best_delivery_day,ShoppingList,best_permutation,item_dict,item_price_dict)
-print(best_delivery_day)
-for i in range(len(ShoppingList)):
-    print(best_permutation[i])
-for i in range(len(ShoppingList)):
-    print(ShoppingList[i].house_num)
-    ShoppingList[i].optimise_item_list.listprint()
+
+# print("Week "+ str(4))
+# shop_list = setShoppingList(item,2) 
+# best_permutation = []
+# best_permutation = optimise_list(shop_list,item_list)
+# best_delivery_day = delivery_date(best_permutation)
+# delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict)
+# print(best_delivery_day)
+# for i in range(len(shop_list)):
+#     print(best_permutation[i])
+# for i in range(len(shop_list)):
+#     print(shop_list[i].house_num)
+#     shop_list[i].optimise_item_list.listprint()
+# print("Week "+ str(5))
+# shop_list = setShoppingList(item,2) 
+# best_permutation = []
+# best_permutation = optimise_list(shop_list,item_list)
+# best_delivery_day = delivery_date(best_permutation)
+# delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict)
+# print(best_delivery_day)
+# for i in range(len(shop_list)):
+#     print(best_permutation[i])
+# for i in range(len(shop_list)):
+#     print(shop_list[i].house_num)
+#     shop_list[i].optimise_item_list.listprint()
+
+for i in range(1,3):
+    print("WEEK + " + str(i+3))
+    shop_list = setShoppingList(item,2) 
+    best_permutation = []
+    best_permutation = optimise_list(shop_list,item_list)
+    best_delivery_day = delivery_date(best_permutation)
+    delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict)
+    print(best_delivery_day)
+    for i in range(len(shop_list)):
+        print(best_permutation[i])
+    for i in range(len(shop_list)):
+        print(shop_list[i].house_num)
+    shop_list[i].optimise_item_list.listprint()
 
 
 
