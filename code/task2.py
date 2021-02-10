@@ -99,6 +99,8 @@ def substituition(shop_list,item_list,best_permutation):
                 if prev_item == None:
                     prev_item = next_item.get_next()
                     print(prev_item.data.name)
+                else:
+                    print(prev_item.data.name)
                 print("NEXT CANDIDATE :", end= ' ')
                 if(next_item != None):
                     print(next_item.data.name)
@@ -113,8 +115,12 @@ def substituition(shop_list,item_list,best_permutation):
                     print("==================")
                 if(next_item.data.store.count(p[0]) == 0 and next_item.data.store.count(p[1]) == 0):
                     current.data.setItem(prev_item.data)
+                    print("BEst MATCH : " +prev_item.get_name())
+                    print("ONLY PREV ALLOWED")
                 elif((prev_item.data.store.count(p[0]) == 0 and prev_item.data.store.count(p[1]) == 0)):
                     current.data.setItem(next_item.data)
+                    print("BEst MATCH : " +next_item.get_name())
+                    print("ONLY NEXTALLOWED")
                 else:
                     for word in list(item.data.name):
                         if prev_item.get_name().count(word) > next_item.get_name().count(word):
@@ -518,31 +524,6 @@ for i in item:
     item_dict[i.name] = 0
     item_price_dict[i.name] = i.price
 item_list.reverse()
-
-# print("Week "+ str(4))
-# shop_list = setShoppingList(item,2) 
-# best_permutation = []
-# best_permutation = optimise_list(shop_list,item_list)
-# best_delivery_day = delivery_date(best_permutation)
-# delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict)
-# print(best_delivery_day)
-# for i in range(len(shop_list)):
-#     print(best_permutation[i])
-# for i in range(len(shop_list)):
-#     print(shop_list[i].house_num)
-#     shop_list[i].optimise_item_list.listprint()
-# print("Week "+ str(5))
-# shop_list = setShoppingList(item,2) 
-# best_permutation = []
-# best_permutation = optimise_list(shop_list,item_list)
-# best_delivery_day = delivery_date(best_permutation)
-# delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict)
-# print(best_delivery_day)
-# for i in range(len(shop_list)):
-#     print(best_permutation[i])
-# for i in range(len(shop_list)):
-#     print(shop_list[i].house_num)
-#     shop_list[i].optimise_item_list.listprint()
 
 for week in range(1,3):
     print("WEEK + " + str(week+3))
