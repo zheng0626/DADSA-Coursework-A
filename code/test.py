@@ -25,4 +25,5 @@ def permutation_store(store):
     for start in range(0,4):
         store_list.append(looped[start:start+3])
     return store_list
-print(permutation_store("ABCD"))
+str_list = "ABCD"
+print(str_list[2:])

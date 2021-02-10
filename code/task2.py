@@ -526,7 +526,7 @@ for i in item:
 item_list.reverse()
 
 for week in range(1,3):
-    print("WEEK + " + str(week+3))
+    print("WEEK  " + str(week+3))
     shop_list = setShoppingList(item,week) 
     best_permutation = []
     best_permutation = optimise_list(shop_list,item_list)

@@ -92,136 +92,97 @@ def optimise_list(shop_list,item_linked):
                 
 
 
-def delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict):
-    num_day_buy = len(best_delivery_day)
-    bdd = best_delivery_day
+def delivery(shop_list,best_permutation,item_dict,item_price_dict):
+    num_shop_to_buy = 4
+    bdd = "ABCD"
     bp = best_permutation
     num = 0
     shopping_schedule = []
     households_delivery_day = []
-    for i in range(num_day_buy):
+    day = 0
+    for i in range(num_shop_to_buy):
         temp_item_dict = item_dict.copy()
         temp_hdd = []
-        for num_household,household in enumerate(shop_list):
-            current_day = bp[num_household].count(bdd[i])
-            if i == num_day_buy-1:
-                next_day = 1
-            else:
-                next_day = bp[num_household].count(bdd[i+1])
-            if (current_day > 0 and next_day > 0) or household.next_delivery == True:
-                current = household.optimise_item_list.head
-                if household.next_delivery == True:
-                    household.next_delivery = False
-                else:
-                    household.next_delivery = True
-                while(current != None):
-                    next_current = current.get_next()
-                    if current.get_store().count(bdd[i]) > 0:
-                        if i == 0 and current.get_store().count(bdd[i+1]) > 0:
-                            pass
-                        else:
-                            temp_item_dict[current.data.item.name] += current.data.quantity
-                            num += current.data.quantity
-                            household.optimise_item_list.remove(current.data.item.name)
-                    current = next_current
+        for household in shop_list:
+            current = household.optimise_item_list.head
+            while(current != None):
+                next_current = current.get_next()
+                if current.get_store().count(bdd[i]) > 0:
+                    if i == 0 and current.get_store().count(bdd[i+1]) > 0:
+                        pass
+                    else:
+                        temp_item_dict[current.data.item.name] += current.data.quantity
+                        num += current.data.quantity
+                        household.optimise_item_list.remove(current.data.item.name)
+                current = next_current
                 if household.optimise_item_list.head == None:
                     temp_hdd.append(household.house_num)
         shopping_schedule.insert(len(shopping_schedule),temp_item_dict)
         households_delivery_day.insert(len(households_delivery_day),temp_hdd)
+
     print("Shopping Schedule")     
     print("-----------------------------")
-    for i,shop_schedule in enumerate(shopping_schedule):
+    i = 0
+    shop_day = 0
+    for day in range(2):
         input("Press Enter to continue...")
-        print("DAY "+ str(i+1))
-        for key,value in shop_schedule.items():
+        print("DAY " + str(day + 1))
+        print("STORE ",bdd[shop_day])
+        for key,value in shopping_schedule[shop_day].items():
             if value != 0:
                 print(key,end=' , ')
                 print("Quantity : "+str(value))
+        shop_day += 1
         print()
+        if shop_day == 3:
+            print("CHEAP STORE")
+        else:
+            print("STORE ",bdd[shop_day])
+        for key,value in shopping_schedule[shop_day].items():
+            if value != 0:
+                print(key,end=' , ')
+                print("Quantity : "+str(value))
+        shop_day += 1
+
+
+            
+    # for shop_schedule in shopping_schedule:
+    #     input("Press Enter to continue...")
+    #     print("DAY "+ str(i+1))
+    #     if shop != 3:
+    #         print("STORE ",bdd[shop])
+    #         shop += 1
+    #     else:
+    #         print("CHEAP STORE")
+
+    #     for key,value in shop_schedule.items():
+    #         if value != 0:
+    #             print(key,end=' , ')
+    #             print("Quantity : "+str(value))
+    #     print()
+    delivery_day = 0
     print("Delivery Schedule")
     print("-----------------------------")
-    for i,deliver_schedule in enumerate(households_delivery_day):
-        if i == 0:
-            pass
-        else:
-            input("Press Enter to continue...")
-            print("DAY "+str(i+1))
-            for household in deliver_schedule:
-                print(household,end=' ')
-            print()
-            print()
+    for day in range(2):
+        input("Press Enter to continue...")
+        print("DAY " +str(day))
+        household = ''
+        for deliver_schedule in households_delivery_day[delivery_day]:
+            print(deliver_schedule,end=' ')
+        delivery_day += 1
+        for delivery_schedule in households_delivery_day[delivery_day]:
+            print(delivery_schedule,end=' ')
+        delivery_day += 1
+        print()
+        print()
+    # for i,deliver_schedule in enumerate(households_delivery_day):
+    #     input("Press Enter to continue...")
+    #     print("DAY "+str(i+1))
+    #     for household in deliver_schedule:
+    #         print(household,end=' ')
+    #     print()
+    #     print()
         
-
-def delivery_date(best_permutation):
-    best_set = set(best_permutation)
-    len_best_set = len(best_set)
-    b1 = permutation("ABCD",False)
-    b2 = permutation("ABCD",False)
-    permu_list = []
-    for i in range(len(b1)):
-        for j in range(len(b2)):
-            permu_list.append(str(b1[i])+str(b2[j]))
-    permu = permutation("ABCD",True)
-    for i in range(len(permu)):
-        permu_list.append(permu[i])
-    print(best_set)
-    print(len_best_set)
-    delivery_date = []
-    for p in permu_list:
-        temp_list = best_set
-        num_done = 0
-        extra_day = p
-        for bp in temp_list:
-            complete = False
-            for i in range(len(extra_day) - 1):
-                same_word = False
-                if len(bp) == 3 and (i+2)!=len(extra_day):
-                    for j in range(3):
-                        for k in range(3):
-                            if j != k:
-                                if extra_day[j] == extra_day[k]:
-                                    same_word = True
-                                    break
-                    if same_word == True:
-                        pass
-                    elif bp.count(extra_day[i]) != 0 and bp.count(extra_day[i+1]) != 0 and bp.count(extra_day[i+2]) != 0:
-                        complete = True
-                        num_done += 1
-                        break
-                elif len(bp) == 2: 
-                    if bp.count(extra_day[i]) != 0 and bp.count(extra_day[i+1]) != 0:
-                        complete = True
-                        num_done += 1
-                        break
-            if complete == False:
-                for day in "ABCD":
-                    if len(bp) == 3:
-                        if bp.count(day) != 0 and day != extra_day[-1] and bp.count(extra_day[-1]) != 0 and bp.count(extra_day[-2]) !=0:
-                            extra_day += day
-                            complete = True
-                            num_done += 1
-                            break
-                    elif len(bp) == 2:
-                        if bp.count(day) != 0 and day != extra_day[-1] and bp.count(extra_day[-1])!= 0:
-                            extra_day += day
-                            complete = True
-                            num_done += 1
-                            break
-            if complete == False:
-                extra_day += bp
-                num_done += 1
-                complete = True
-        if num_done == len_best_set:
-            delivery_date.append(extra_day)
-        else:
-            print(num_done)
-            print("ERROR IN delivery_date()")
-    delivery_date = min(delivery_date,key=len)
-    print("DELIVERY DATE")
-    print(delivery_date)
-    return delivery_date
-
-
 
 
 
@@ -486,12 +447,7 @@ for week in range(1,3):
     shop_list = setShoppingList(item,week) 
     best_permutation = []
     best_permutation = optimise_list(shop_list,item_list)
-    best_delivery_day = delivery_date(best_permutation)
-    delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict)
-    print(best_delivery_day)
-    print(best_permutation)
-    for i in range(len(shop_list)):
-        print(best_permutation[i])
+    delivery(shop_list,best_permutation,item_dict,item_price_dict)
     for i in range(len(shop_list)):
         print(shop_list[i].house_num)
     shop_list[i].optimise_item_list.listprint()
