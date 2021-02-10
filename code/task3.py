@@ -64,9 +64,6 @@ def optimise_list(shop_list,item_linked):
             if sub < lowest_sub:
                 lowest_sub = sub
                 lowest_p = p
-        print(household.house_num,end=' ')
-        print(lowest_p,end=' ')
-        print(lowest_sub)
         if lowest_sub > 0:
             passed = False
             for p in permutation_store("ABCD"):
@@ -86,7 +83,6 @@ def optimise_list(shop_list,item_linked):
             best_permu_list.append(lowest_p)
         else:
             print("ERROR IN optimises_list()")
-    print(best_permu_list)
     return best_permu_list
                     
                 
@@ -133,6 +129,7 @@ def delivery(shop_list,best_permutation,item_dict,item_price_dict):
                 print(key,end=' , ')
                 print("Quantity : "+str(value))
         shop_day += 1
+        input("Press Enter to continue...")
         print()
         if shop_day == 3:
             print("CHEAP STORE")
@@ -145,21 +142,7 @@ def delivery(shop_list,best_permutation,item_dict,item_price_dict):
         shop_day += 1
 
 
-            
-    # for shop_schedule in shopping_schedule:
-    #     input("Press Enter to continue...")
-    #     print("DAY "+ str(i+1))
-    #     if shop != 3:
-    #         print("STORE ",bdd[shop])
-    #         shop += 1
-    #     else:
-    #         print("CHEAP STORE")
-
-    #     for key,value in shop_schedule.items():
-    #         if value != 0:
-    #             print(key,end=' , ')
-    #             print("Quantity : "+str(value))
-    #     print()
+    print()
     delivery_day = 0
     print("Delivery Schedule")
     print("-----------------------------")
@@ -175,13 +158,6 @@ def delivery(shop_list,best_permutation,item_dict,item_price_dict):
         delivery_day += 1
         print()
         print()
-    # for i,deliver_schedule in enumerate(households_delivery_day):
-    #     input("Press Enter to continue...")
-    #     print("DAY "+str(i+1))
-    #     for household in deliver_schedule:
-    #         print(household,end=' ')
-    #     print()
-    #     print()
         
 
 
@@ -385,9 +361,7 @@ def setShoppingList(item_list,num):
         reader = csv.reader(csvFile)
         shoppingList = []
         num_households = getNumHouseholds()
-        print(num_households)
         households = (list(reader)[0])[2:num_households+2]
-        print(households)
         csvFile.seek(0)
         next(reader)
         next(reader)
@@ -443,14 +417,11 @@ for i in item:
 item_list.reverse()
 
 for week in range(1,3):
-    print("WEEK + " + str(week+3))
+    print("WEEK  " + str(week+5))
     shop_list = setShoppingList(item,week) 
     best_permutation = []
     best_permutation = optimise_list(shop_list,item_list)
     delivery(shop_list,best_permutation,item_dict,item_price_dict)
-    for i in range(len(shop_list)):
-        print(shop_list[i].house_num)
-    shop_list[i].optimise_item_list.listprint()
 
 
 

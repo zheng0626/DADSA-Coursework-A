@@ -10,12 +10,6 @@ def getNumHouseholds():
 
     return num_households
 
-def getNumStore():
-    with open("fileA.csv",'r') as csvFile:
-        reader = csv.reader(csvFile)
-
-        num_store = len(list(reader)[0])-3
-    return num_store
 
 def permutation(shop,fullChar):
     if len(shop) == 1:
@@ -126,11 +120,14 @@ def delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_d
                     temp_hdd.append(household.house_num)
         shopping_schedule.insert(len(shopping_schedule),temp_item_dict)
         households_delivery_day.insert(len(households_delivery_day),temp_hdd)
+
+
     print("Shopping Schedule")     
     print("-----------------------------")
     for i,shop_schedule in enumerate(shopping_schedule):
         input("Press Enter to continue...")
         print("DAY "+ str(i+1))
+        print("STORE "+bdd[i])
         for key,value in shop_schedule.items():
             if value != 0:
                 print(key,end=' , ')
@@ -424,16 +421,6 @@ def setShoppingList(item_list,num = 1):
         
         return shoppingList
 
-def getHouseHolds():
-    with open("fileB.csv", 'r') as csvFile:
-        reader = csv.reader(csvFile)
-        num_households = getNumHouseholds()
-        households = (list(reader)[0])[1:num_households+1]
-        print(households)
-
-
-
-
 
         
 
@@ -456,9 +443,6 @@ for week in range(1,3):
     best_delivery_day = delivery_date(best_permutation)  
     delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_dict)
 
-    for i in range(len(shop_list)):
-        print(shop_list[i].house_num)
-        shop_list[i].optimise_item_list.listprint()
 
 
 

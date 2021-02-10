@@ -181,6 +181,7 @@ def delivery(best_delivery_day,shop_list,best_permutation,item_dict,item_price_d
     for i,shop_schedule in enumerate(shopping_schedule):
         input("Press Enter to continue...")
         print("DAY "+ str(i+1))
+        print("STORE " + bdd[i])
         for key,value in shop_schedule.items():
             if value != 0:
                 print(key,end=' , ')
