@@ -10,6 +10,12 @@ def getNumHouseholds():
 
     return num_households
 
+def getNumStore():
+    with open("fileA.csv",'r') as csvFile:
+        reader = csv.reader(csvFile)
+
+        num_store = len(list(reader)[0])-3
+    return num_store
 
 def permutation(shop,fullChar):
     if len(shop) == 1:
@@ -37,31 +43,47 @@ def optimise_list(shop_list,item_linked):
     lowest_p = permutation_shop_list[0]
 
     for p in permutation_shop_list:
+        #to record the number of substituition require for this permutation
         sub = 0
+        #get the head of the linked list from shop_list
         current = shop_list.optimise_item_list.head
+        #will keep running if the current is not empty
         while current != None:
+            #if current item store did not meet the permutation shop requirment
             if current.get_store().count(p[0]) == 0 and current.get_store().count(p[1]) == 0:
                 sub += 1
             current = current.get_next()
+        #if sub smaller than lowest_sub than change the sub to lowest_sub
         if sub < lowest_sub:
             lowest_sub = sub
+            #record the lowest substituition require permutation
             lowest_p = p
+        #because the code need not much about shop c so i add this code
         if sub == lowest_sub and p.count("C") > 0:
             lowest_p = p
+    #if the lowest require subtituition is not 0 than substitue the item inside shop_list
     if lowest_sub != 0:
         substituition(shop_list,item_linked,lowest_p)
+
+    #return the lowest require subtituition permutation
     return lowest_p
 
 def substituition(shop_list,item_list,best_permutation):
+    #best permutation get from optimise_list()
     p = best_permutation
     current = shop_list.optimise_item_list.head
     current_store = shop_list.optimise_item_list.head.get_store()
 
     while(current != None):
+        #find the item that is needed to substitue
         if current.get_store().count(p[0]) == 0 and current.get_store().count(p[1]) == 0:
+            #find the item in item_list linked list
             item = item_list.search(current.data.item.name)
+            #get the previous list in linked list
             prev_item = item_list.getPreNode(item.data.name)
+            #get the next list in linked list
             next_item = item.get_next()
+            #for debugging
             if(False):
                 print("ITEM CANNOT BE FULL FILLED IS :", end= ' ')
                 print(item.data.name)
@@ -69,6 +91,7 @@ def substituition(shop_list,item_list,best_permutation):
                 print(prev_item.data.name)
                 print("NEXT CANDIDATE :", end= ' ')
                 print(next_item.data.name)
+            #to compare the nearest name with the item
             prev_w = 0
             next_w = 0
             for word in list(item.data.name):
